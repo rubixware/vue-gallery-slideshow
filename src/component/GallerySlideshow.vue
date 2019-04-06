@@ -1,6 +1,7 @@
 <template>
   <transition name="modal">
     <div class="vgs" @click="close" v-if="imgIndex !== null">
+      <button type="button" class="vgs__download" href="imgUrl" download v-if="isDownloadable">Descargar</button>
       <button type="button" class="vgs__close" @click="close">&times;</button>
       <button type="button" class="vgs__prev" v-if="isMultiple" @click.stop="onPrev">&lsaquo;</button>
       <div class="vgs__container" @click.stop="onNext" v-if="images">
@@ -30,15 +31,17 @@
 
 <script>
 export default {
-  props: ["images", "index"],
+  props: ["images", "index","download"],
   mounted() {
     window.addEventListener("keydown", e => {
       if (e.keyCode === 37) {
         this.onPrev();
       }
-
       if (e.keyCode === 39) {
         this.onNext();
+      }
+      if (e.keyCode === 27) {
+        this.close();
       }
     });
   },
@@ -113,14 +116,18 @@ export default {
     },
     isMultiple() {
       return this.images.length > 1;
-    }
+    },
+    isDownloadable() {
+      return this.downloadable;
+    },
   },
   data() {
     return {
       imgIndex: this.index,
       image: null,
       galleryXPos: 0,
-      thumbnailWidth: 120
+      thumbnailWidth: 120,
+      downloadable: false
     };
   }
 };
@@ -180,6 +187,7 @@ $screen-md-max: ($screen-lg - 1);
 
 .vgs {
   @include modal-mask();
+  &__download,
   &__close {
     color: #fff;
     position: absolute;
@@ -195,6 +203,9 @@ $screen-md-max: ($screen-lg - 1);
     &:focus {
       outline: 0;
     }
+  }
+  &__download {
+    right: 100px;
   }
   &__prev,
   &__next {
